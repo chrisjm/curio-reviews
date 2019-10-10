@@ -1,0 +1,9 @@
+type Review @model {
+  id: ID!
+  url: AWSURL!
+  author: String!
+  description: String!
+  rating: Int
+  source: String
+  date: AWSDate
+}
