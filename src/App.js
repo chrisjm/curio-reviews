@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import './App.css';
+import { Pane, Button, Text, Heading, majorScale } from 'evergreen-ui';
 import { PubSub, Auth, API, graphqlOperation } from 'aws-amplify';
 import { createReview } from './graphql/mutations';
 import awsconfig from './aws-exports';
@@ -26,28 +26,34 @@ function App() {
     try {
       setResult('Loading...');
       const { data } = await createNewReview();
-      setResult(`${data.createReview.url} - ${data.createReview.author} - ${data.createReview.description}`);
+      setResult(
+        `${data.createReview.url} - ${data.createReview.author} - ${data.createReview.description}`
+      );
     } catch (error) {
       setResult(error);
     }
   }
 
   return (
-    <div className="app">
-      <div className="app-header">
-        <div className="app-logo">
-          <img
-            src="https://aws-amplify.github.io/images/Logos/Amplify-Logo-White.svg"
-            alt="AWS Amplify"
-          />
-        </div>
-        <h1>Welcome to the Amplify Framework</h1>
-      </div>
-      <div className="app-body">
-        <button onClick={handleClick}>Add data</button>
-        <div>{result}</div>
-      </div>
-    </div>
+    <Pane display="flex" flexDirection="column">
+      <Pane
+        padding={majorScale(6)}
+        background="linear-gradient(30deg, #f90 55%, #FFC300)"
+        boxShadow="1px 2px 4px rgba(0, 0, 0, .3)"
+        marginBottom={majorScale(3)}
+        textAlign="center"
+      >
+        <Heading size={900} color="white">
+          CURIO Reviews
+        </Heading>
+      </Pane>
+      <Pane marginTop={majorScale(2)} textAlign="center">
+        <Button onClick={handleClick}>Add data</Button>
+      </Pane>
+      <Pane marginTop={majorScale(2)} textAlign="center">
+        <Text>{result}</Text>
+      </Pane>
+    </Pane>
   );
 }
 
