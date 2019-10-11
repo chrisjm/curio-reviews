@@ -1,35 +1,83 @@
 import React, { useState } from 'react';
-import { Pane, Button, Text, Heading, majorScale } from 'evergreen-ui';
+import {
+  Card,
+  Pane,
+  Button,
+  Text,
+  Heading,
+  majorScale,
+  Table,
+  TextInput,
+  Textarea,
+  Select,
+  SegmentedControl,
+  toaster,
+} from 'evergreen-ui';
 import Amplify, { API, graphqlOperation } from 'aws-amplify';
 import { withAuthenticator } from 'aws-amplify-react';
+import { listReviews } from './graphql/queries';
 import { createReview } from './graphql/mutations';
 import awsconfig from './aws-exports';
 
-async function createNewReview() {
-  const review = {
-    url: 'https://chrisjmears.com',
-    description: 'Awesome website! 👍',
-    author: 'chrisjm',
-    rating: 5,
-    source: 'website',
-  };
-  return await API.graphql(graphqlOperation(createReview, { input: review }));
 Amplify.configure(awsconfig);
 
+async function getReviews() {
+  return await API.graphql(graphqlOperation(listReviews));
 }
 
 function App() {
-  const [result, setResult] = useState('Click to add fake reviews');
+  // Dashboard
+  const [result, setResult] = useState('No reviews loaded.');
+  const [loadReviewsButtonLabel, setloadReviewsButtonLabel] = useState('Load Reviews');
+  const [reviews, setReviews] = useState([]);
 
-  async function handleClick() {
+  // Create Form
+  const [newProduct, setNewProduct] = useState('');
+  const [newAuthor, setNewAuthor] = useState('');
+  const [newReview, setNewReview] = useState('');
+  const [newRating, setNewRating] = useState(5);
+  const [newSource, setNewSource] = useState('');
+  const [newDate, setNewDate] = useState('');
+
+  const ratingOptions = [
+    { label: '⭐', value: 1 },
+    { label: '⭐⭐', value: 2 },
+    { label: '⭐⭐⭐', value: 3 },
+    { label: '⭐⭐⭐⭐', value: 4 },
+    { label: '⭐⭐⭐⭐⭐', value: 5 },
+  ];
+
+  async function loadReviews() {
     try {
       setResult('Loading...');
-      const { data } = await createNewReview();
-      setResult(
-        `${data.createReview.url} - ${data.createReview.author} - ${data.createReview.description}`
-      );
+      const { data } = await getReviews();
+      const reviews = data.listReviews.items;
+      setResult(`Found ${reviews.length} reviews.`);
+      setloadReviewsButtonLabel('Refresh Reviews');
+      setReviews(reviews);
     } catch (error) {
       setResult(error);
+      toaster.error('ERROR!', {
+        description: error,
+      });
+    }
+  }
+
+  async function createNewReview() {
+    try {
+      const newUrl = `https://curiomodern.com/product/${newProduct}`;
+      const input = {
+        url: newUrl,
+        author: newAuthor,
+        description: newReview,
+        rating: newRating,
+        source: newSource,
+        date: newDate,
+      };
+      return await API.graphql(graphqlOperation(createReview, { input }));
+    } catch (error) {
+      console.error(error);
+      toaster.danger(error.errors[0].message);
     }
   }
 
@@ -46,12 +94,105 @@ function App() {
           CURIO Reviews
         </Heading>
       </Pane>
-      <Pane marginTop={majorScale(2)} textAlign="center">
-        <Button onClick={handleClick}>Add data</Button>
+      <Pane marginTop={majorScale(2)} marginX={majorScale(1)}>
+        <Table>
+          <Table.Head>
+            <Table.TextHeaderCell>Product</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Author</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Review</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Rating</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Source</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Date</Table.TextHeaderCell>
+          </Table.Head>
+          <Table.Body height={240}>
+            {reviews.map(review => (
+              <Table.Row key={review.id} isSelectable onSelect={() => alert(review.description)}>
+                <Table.TextCell>{review.url}</Table.TextCell>
+                <Table.TextCell>{review.author}</Table.TextCell>
+                <Table.TextCell>{review.description}</Table.TextCell>
+                <Table.TextCell isNumber>{review.rating}</Table.TextCell>
+                <Table.TextCell>{review.source}</Table.TextCell>
+                <Table.TextCell>{review.date}</Table.TextCell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
       </Pane>
       <Pane marginTop={majorScale(2)} textAlign="center">
         <Text>{result}</Text>
       </Pane>
+      <Pane marginTop={majorScale(2)} textAlign="center">
+        <Button iconBefore="refresh" appearance="primary" intent="success" onClick={loadReviews}>
+          {loadReviewsButtonLabel}
+        </Button>
+      </Pane>
+      <Card
+        marginTop={majorScale(2)}
+        display="flex"
+        flexDirection="column"
+        justifyContent="center"
+        marginX={majorScale(1)}
+        border="default"
+        padding={majorScale(3)}
+      >
+        <Heading size={700}>Add Review</Heading>
+        <Select
+          marginTop={majorScale(1)}
+          value={newProduct}
+          onChange={event => setNewProduct(event.target.value)}
+        >
+          <option value="">- Select Product -</option>
+          <option value="maple">Maple CURIO</option>
+          <option value="maple-pattern">Maple + Pattern CURIO</option>
+          <option value="walnut">Walnut CURIO</option>
+          <option value="walnut-pattern">Walnut + Pattern CURIO</option>
+          <option value="litter-liner">Litter Liner</option>
+        </Select>
+        <TextInput
+          name="author"
+          placeholder="Customer Name"
+          width="100%"
+          marginTop={majorScale(1)}
+          value={newAuthor}
+          onChange={event => setNewAuthor(event.target.value)}
+        />
+        <Textarea
+          name="description"
+          placeholder="Review"
+          width="100%"
+          marginTop={majorScale(1)}
+          value={newReview}
+          onChange={event => setNewReview(event.target.value)}
+        />
+        <SegmentedControl
+          width="100%"
+          marginTop={majorScale(1)}
+          options={ratingOptions}
+          value={newRating}
+          onChange={value => setNewRating(value)}
+        />
+        <TextInput
+          name="source"
+          placeholder="Source (ex. Etsy, Wayfair, Website)"
+          width="100%"
+          marginTop={majorScale(1)}
+          value={newSource}
+          onChange={event => setNewSource(event.target.value)}
+        />
+        <TextInput
+          name="date"
+          placeholder="YYYY-MM-DD (ex. 2019-10-10)"
+          width="100%"
+          marginTop={majorScale(1)}
+          value={newDate}
+          onChange={event => setNewDate(event.target.value)}
+        />
+        <Pane marginTop={majorScale(1)}>
+          <Button appearance="primary" onClick={createNewReview}>
+            Add Review
+          </Button>
+        </Pane>
+      </Card>
     </Pane>
   );
 }
