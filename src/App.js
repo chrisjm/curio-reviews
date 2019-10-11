@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { Pane, Button, Text, Heading, majorScale } from 'evergreen-ui';
-import { PubSub, Auth, API, graphqlOperation } from 'aws-amplify';
+import Amplify, { API, graphqlOperation } from 'aws-amplify';
+import { withAuthenticator } from 'aws-amplify-react';
 import { createReview } from './graphql/mutations';
 import awsconfig from './aws-exports';
-
-Auth.configure(awsconfig);
-API.configure(awsconfig);
-PubSub.configure(awsconfig);
 
 async function createNewReview() {
   const review = {
@@ -17,6 +14,8 @@ async function createNewReview() {
     source: 'website',
   };
   return await API.graphql(graphqlOperation(createReview, { input: review }));
+Amplify.configure(awsconfig);
+
 }
 
 function App() {
@@ -57,4 +56,4 @@ function App() {
   );
 }
 
-export default App;
+export default withAuthenticator(App);

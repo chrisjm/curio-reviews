@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "aws-amplify": "^1.1.40",
+    "aws-amplify-react": "^2.5.0",
     "evergreen-ui": "^4.19.3",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
