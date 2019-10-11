@@ -15,6 +15,8 @@ import {
 } from 'evergreen-ui';
 import Amplify, { API, graphqlOperation } from 'aws-amplify';
 import { withAuthenticator } from 'aws-amplify-react';
+import DatePicker from 'react-date-picker';
+import moment from 'moment';
 import { listReviews } from './graphql/queries';
 import { createReview } from './graphql/mutations';
 import awsconfig from './aws-exports';
@@ -37,7 +39,7 @@ function App() {
   const [newReview, setNewReview] = useState('');
   const [newRating, setNewRating] = useState(5);
   const [newSource, setNewSource] = useState('');
-  const [newDate, setNewDate] = useState('');
+  const [newDate, setNewDate] = useState(new Date());
 
   const ratingOptions = [
     { label: '⭐', value: 1 },
@@ -56,25 +58,30 @@ function App() {
       setloadReviewsButtonLabel('Refresh Reviews');
       setReviews(reviews);
     } catch (error) {
-      setResult(error);
-      toaster.error('ERROR!', {
-        description: error,
-      });
+      console.error(error);
+      toaster.danger(error.errors[0].message);
     }
   }
 
   async function createNewReview() {
     try {
       const newUrl = `https://curiomodern.com/product/${newProduct}`;
-      const input = {
+
+      // Required fields
+      let input = {
         url: newUrl,
         author: newAuthor,
-        description: newReview,
-        rating: newRating,
-        source: newSource,
-        date: newDate,
-      };
-      return await API.graphql(graphqlOperation(createReview, { input }));
+        rating: newRating
+      }
+
+      // Note: DynamoDB doesn't like empty string, so only add if necessary
+      if (newReview) input.description = newReview;
+      if (newSource) input.source = newSource;
+      if (newDate) input.date = moment(newDate).format('YYYY-MM-DD');
+
+      const result = await API.graphql(graphqlOperation(createReview, { input }));
+      console.log(result);
+      toaster.success('Review added successfully!');
     } catch (error) {
       console.error(error);
       toaster.danger(error.errors[0].message);
@@ -179,14 +186,9 @@ function App() {
           value={newSource}
           onChange={event => setNewSource(event.target.value)}
         />
-        <TextInput
-          name="date"
-          placeholder="YYYY-MM-DD (ex. 2019-10-10)"
-          width="100%"
-          marginTop={majorScale(1)}
-          value={newDate}
-          onChange={event => setNewDate(event.target.value)}
-        />
+        <Pane marginTop={majorScale(1)}>
+          <DatePicker format="y-MM-dd" onChange={date => setNewDate(date)} value={newDate} />
+        </Pane>
         <Pane marginTop={majorScale(1)}>
           <Button appearance="primary" onClick={createNewReview}>
             Add Review

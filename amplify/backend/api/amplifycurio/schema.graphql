@@ -2,8 +2,8 @@ type Review @model {
   id: ID!
   url: AWSURL!
   author: String!
-  description: String!
-  rating: Int
-  source: String
+  rating: Int!
   date: AWSDate
+  description: String
+  source: String
 }
