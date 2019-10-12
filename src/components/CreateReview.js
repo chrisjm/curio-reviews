@@ -59,7 +59,7 @@ function CreateReviewForm() {
 
   return (
     <Pane>
-      <Pane marginTop={majorScale(2)} textAlign="center">
+      <Pane marginTop={majorScale(2)} marginX={majorScale(1)} textAlign="right">
         <Button
           iconBefore="plus"
           appearance="primary"

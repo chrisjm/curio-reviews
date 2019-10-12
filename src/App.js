@@ -13,8 +13,8 @@ function App() {
   return (
     <Pane display="flex" flexDirection="column">
       <Header />
-      <ReviewsTable />
       <CreateReview />
+      <ReviewsTable />
     </Pane>
   );
 }
