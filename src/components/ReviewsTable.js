@@ -3,7 +3,6 @@ import { API, graphqlOperation } from 'aws-amplify';
 import {
   Pane,
   Table,
-  Text,
   TextInput,
   Dialog,
   SegmentedControl,
@@ -15,17 +14,12 @@ import {
 } from 'evergreen-ui';
 import DatePicker from 'react-date-picker';
 import moment from 'moment';
-import { listReviews } from '../graphql/queries';
 import { updateReview, deleteReview } from '../graphql/mutations';
 
-function ReviewsTable() {
+function ReviewsTable({ reviews }) {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
-  const [reviews, setReviews] = useState([]);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState({});
-
-  // Labels
-  const [loadReviewsButtonLabel, setloadReviewsButtonLabel] = useState('Load Reviews');
-  const [result, setResult] = useState('No reviews loaded.');
 
   // Update Dialog
   const [updatedUrl, setUpdatedUrl] = useState('');
@@ -44,20 +38,6 @@ function ReviewsTable() {
     { label: '⭑⭑⭑⭑⭑', value: 5 },
   ];
 
-  async function loadReviews() {
-    try {
-      setResult('Loading...');
-      const { data } = await await API.graphql(graphqlOperation(listReviews));
-      const reviews = data.listReviews.items;
-      setResult(`Found ${reviews.length} reviews.`);
-      setloadReviewsButtonLabel('Refresh Reviews');
-      setReviews(reviews);
-    } catch (error) {
-      console.error(error);
-      toaster.danger(error.errors[0].message);
-    }
-  }
-
   async function updateSelectedReview() {
     try {
       // Required fields
@@ -74,16 +54,9 @@ function ReviewsTable() {
       if (updatedSource) input.source = updatedSource;
       if (updatedDate) input.date = moment(updatedDate).format('YYYY-MM-DD');
 
-      console.log(input);
+      await API.graphql(graphqlOperation(updateReview, { input }));
 
-      // Update review
-      const { data } = await API.graphql(graphqlOperation(updateReview, { input }));
-
-      console.log(data);
-
-      // UI Feedback
       toaster.success('Review updated successfully!');
-      loadReviews();
       closeUpdateDialog();
     } catch (error) {
       console.error(error);
@@ -103,6 +76,11 @@ function ReviewsTable() {
     setIsUpdateDialogOpen(true);
   }
 
+  function showDeleteDialog(review) {
+    setSelectedReview(review);
+    setIsDeleteDialogOpen(true);
+  }
+
   function closeUpdateDialog() {
     setIsUpdateDialogOpen(false);
   }
@@ -112,7 +90,7 @@ function ReviewsTable() {
       const input = { id };
       await API.graphql(graphqlOperation(deleteReview, { input }));
       toaster.success('Review deleted successfully!');
-      loadReviews();
+      setIsDeleteDialogOpen(false)
     } catch (error) {
       console.error(error);
       toaster.danger(error.errors[0].message);
@@ -133,7 +111,6 @@ function ReviewsTable() {
       } else {
         toaster.success('Review ignored.');
       }
-      loadReviews();
     } catch (error) {
       console.error(error);
       toaster.danger(error.errors[0].message);
@@ -148,25 +125,33 @@ function ReviewsTable() {
             <Table.TextHeaderCell>URL</Table.TextHeaderCell>
             <Table.TextHeaderCell>Review</Table.TextHeaderCell>
             <Table.TextHeaderCell>Author</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Rating</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Approved?</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+            <Table.TextHeaderCell flexBasis={100} flexShrink={0} flexGrow={0}>
+              Rating
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell flexBasis={100} flexShrink={0} flexGrow={0}>
+              Approved?
+            </Table.TextHeaderCell>
+            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
+              Actions
+            </Table.TextHeaderCell>
           </Table.Head>
-          <Table.Body height={240}>
+          <Table.Body>
             {reviews.map(review => (
-              <Table.Row key={review.id} backgroundColor="orangeTint">
+              <Table.Row key={review.id}>
                 <Table.TextCell>{review.url}</Table.TextCell>
                 <Table.TextCell>{review.description}</Table.TextCell>
                 <Table.TextCell>{review.author}</Table.TextCell>
-                <Table.TextCell>{'⭑'.repeat(review.rating)}</Table.TextCell>
-                <Table.TextCell>
+                <Table.TextCell flexBasis={100} flexShrink={0} flexGrow={0}>
+                  {'⭑'.repeat(review.rating)}
+                </Table.TextCell>
+                <Table.TextCell flexBasis={100} flexShrink={0} flexGrow={0}>
                   <Switch
                     height={24}
                     checked={review.isApproved}
                     onChange={event => handleUpdateApproved(review.id, event.target.checked)}
                   />
                 </Table.TextCell>
-                <Table.TextCell>
+                <Table.TextCell flexBasis={200} flexShrink={0} flexGrow={0}>
                   <Button
                     iconBefore="edit"
                     appearance="minimal"
@@ -180,7 +165,7 @@ function ReviewsTable() {
                     iconBefore="trash"
                     appearance="minimal"
                     intent="danger"
-                    onClick={() => handleDeleteReview(review.id)}
+                    onClick={() => showDeleteDialog(review)}
                   >
                     Delete
                   </Button>
@@ -189,14 +174,6 @@ function ReviewsTable() {
             ))}
           </Table.Body>
         </Table>
-      </Pane>
-      <Pane marginTop={majorScale(2)} textAlign="center">
-        <Text>{result}</Text>
-      </Pane>
-      <Pane marginTop={majorScale(2)} textAlign="center">
-        <Button iconBefore="refresh" appearance="primary" onClick={loadReviews}>
-          {loadReviewsButtonLabel}
-        </Button>
       </Pane>
       <Dialog
         isShown={isUpdateDialogOpen}
@@ -260,6 +237,16 @@ function ReviewsTable() {
             />
           </Pane>
         </Pane>
+      </Dialog>
+      <Dialog
+        isShown={isDeleteDialogOpen}
+        title="Delete Review"
+        intent="danger"
+        onConfirm={() => handleDeleteReview(selectedReview.id)}
+        onCloseComplete={() => setIsDeleteDialogOpen(false)}
+        confirmLabel="Delete Review"
+      >
+        Are you sure you want to delete this review?
       </Dialog>
     </Pane>
   );

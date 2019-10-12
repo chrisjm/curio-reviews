@@ -40,3 +40,29 @@ export const onDeleteReview = `subscription OnDeleteReview {
   }
 }
 `;
+export const onCreateOrUpdateOrDeleteReview = `subscription OnCreateOrUpdateOrDeleteReview {
+  onCreateReview {
+    id
+    url
+    author
+    description
+    rating
+    source
+    date
+    isApproved
+  }
+  onUpdateReview {
+    id
+    url
+    author
+    description
+    rating
+    source
+    date
+    isApproved
+  }
+  onDeleteReview {
+    id
+  }
+}
+`;
