@@ -10,6 +10,7 @@ export const getReview = `query GetReview($id: ID!) {
     rating
     source
     date
+    isApproved
   }
 }
 `;
@@ -27,6 +28,7 @@ export const listReviews = `query ListReviews(
       rating
       source
       date
+      isApproved
     }
     nextToken
   }

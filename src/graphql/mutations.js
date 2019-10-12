@@ -10,6 +10,7 @@ export const createReview = `mutation CreateReview($input: CreateReviewInput!) {
     rating
     source
     date
+    isApproved
   }
 }
 `;
@@ -22,6 +23,7 @@ export const updateReview = `mutation UpdateReview($input: UpdateReviewInput!) {
     rating
     source
     date
+    isApproved
   }
 }
 `;
@@ -34,6 +36,7 @@ export const deleteReview = `mutation DeleteReview($input: DeleteReviewInput!) {
     rating
     source
     date
+    isApproved
   }
 }
 `;

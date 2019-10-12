@@ -6,4 +6,5 @@ type Review @model {
   date: AWSDate
   description: String
   source: String
+  isApproved: Boolean
 }

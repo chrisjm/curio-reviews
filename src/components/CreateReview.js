@@ -25,11 +25,11 @@ function CreateReviewForm() {
   const [newDate, setNewDate] = useState(new Date());
 
   const ratingOptions = [
-    { label: '⭐', value: 1 },
-    { label: '⭐⭐', value: 2 },
-    { label: '⭐⭐⭐', value: 3 },
-    { label: '⭐⭐⭐⭐', value: 4 },
-    { label: '⭐⭐⭐⭐⭐', value: 5 },
+    { label: '⭑', value: 1 },
+    { label: '⭑⭑', value: 2 },
+    { label: '⭑⭑⭑', value: 3 },
+    { label: '⭑⭑⭑⭑', value: 4 },
+    { label: '⭑⭑⭑⭑⭑', value: 5 },
   ];
 
   async function createNewReview() {
@@ -51,6 +51,7 @@ function CreateReviewForm() {
       const result = await API.graphql(graphqlOperation(createReview, { input }));
       console.log(result);
       toaster.success('Review added successfully!');
+      setIsShown(false);
     } catch (error) {
       console.error(error);
       toaster.danger(error.errors[0].message);

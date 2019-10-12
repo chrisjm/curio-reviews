@@ -10,6 +10,7 @@ export const onCreateReview = `subscription OnCreateReview {
     rating
     source
     date
+    isApproved
   }
 }
 `;
@@ -22,6 +23,7 @@ export const onUpdateReview = `subscription OnUpdateReview {
     rating
     source
     date
+    isApproved
   }
 }
 `;
@@ -34,6 +36,7 @@ export const onDeleteReview = `subscription OnDeleteReview {
     rating
     source
     date
+    isApproved
   }
 }
 `;
