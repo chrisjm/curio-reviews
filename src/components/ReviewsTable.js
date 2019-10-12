@@ -146,11 +146,9 @@ function ReviewsTable() {
         <Table>
           <Table.Head>
             <Table.TextHeaderCell>URL</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Author</Table.TextHeaderCell>
             <Table.TextHeaderCell>Review</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Author</Table.TextHeaderCell>
             <Table.TextHeaderCell>Rating</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Source</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Date</Table.TextHeaderCell>
             <Table.TextHeaderCell>Approved?</Table.TextHeaderCell>
             <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
           </Table.Head>
@@ -158,11 +156,9 @@ function ReviewsTable() {
             {reviews.map(review => (
               <Table.Row key={review.id} backgroundColor="orangeTint">
                 <Table.TextCell>{review.url}</Table.TextCell>
-                <Table.TextCell>{review.author}</Table.TextCell>
                 <Table.TextCell>{review.description}</Table.TextCell>
+                <Table.TextCell>{review.author}</Table.TextCell>
                 <Table.TextCell>{'⭑'.repeat(review.rating)}</Table.TextCell>
-                <Table.TextCell>{review.source}</Table.TextCell>
-                <Table.TextCell>{review.date}</Table.TextCell>
                 <Table.TextCell>
                   <Switch
                     height={24}
