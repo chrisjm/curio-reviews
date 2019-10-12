@@ -15,7 +15,7 @@ import {
 import DatePicker from 'react-date-picker';
 import moment from 'moment';
 import { listReviews } from '../graphql/queries';
-import { updateReview } from '../graphql/mutations';
+import { updateReview, deleteReview } from '../graphql/mutations';
 
 function ReviewsTable() {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
@@ -98,27 +98,57 @@ function ReviewsTable() {
     setIsUpdateDialogOpen(false);
   }
 
+  async function handleDeleteReview(id) {
+    const input = { id };
+
+    // Update review
+    const { data } = await API.graphql(graphqlOperation(deleteReview, { input }));
+    console.log(data);
+    // UI Feedback
+    toaster.success('Review deleted successfully!');
+  }
+
   return (
     <Pane>
       <Pane marginTop={majorScale(2)} marginX={majorScale(1)}>
         <Table>
           <Table.Head>
-            <Table.TextHeaderCell>Product</Table.TextHeaderCell>
+            <Table.TextHeaderCell>URL</Table.TextHeaderCell>
             <Table.TextHeaderCell>Author</Table.TextHeaderCell>
             <Table.TextHeaderCell>Review</Table.TextHeaderCell>
             <Table.TextHeaderCell>Rating</Table.TextHeaderCell>
             <Table.TextHeaderCell>Source</Table.TextHeaderCell>
             <Table.TextHeaderCell>Date</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body height={240}>
             {reviews.map(review => (
-              <Table.Row key={review.id} isSelectable onSelect={() => showUpdateDialog(review)}>
+              <Table.Row key={review.id}>
                 <Table.TextCell>{review.url}</Table.TextCell>
                 <Table.TextCell>{review.author}</Table.TextCell>
                 <Table.TextCell>{review.description}</Table.TextCell>
                 <Table.TextCell isNumber>{review.rating}</Table.TextCell>
                 <Table.TextCell>{review.source}</Table.TextCell>
                 <Table.TextCell>{review.date}</Table.TextCell>
+                <Table.TextCell>
+                  <Button
+                    iconBefore="edit"
+                    appearance="minimal"
+                    intent="none"
+                    marginRight={majorScale(1)}
+                    onClick={() => showUpdateDialog(review)}
+                  >
+                    Edit
+                  </Button>
+                  <Button
+                    iconBefore="trash"
+                    appearance="minimal"
+                    intent="danger"
+                    onClick={() => handleDeleteReview(review.id)}
+                  >
+                    Delete
+                  </Button>
+                </Table.TextCell>
               </Table.Row>
             ))}
           </Table.Body>
