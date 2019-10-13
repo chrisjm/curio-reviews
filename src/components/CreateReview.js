@@ -14,6 +14,8 @@ import {
   toaster,
 } from 'evergreen-ui';
 import { createReview } from '../graphql/mutations';
+import { ratingOptions } from '../utils/ratings';
+import { products } from '../utils/products';
 
 function CreateReviewForm() {
   const [isShown, setIsShown] = useState(false);
@@ -23,14 +25,6 @@ function CreateReviewForm() {
   const [newRating, setNewRating] = useState(5);
   const [newSource, setNewSource] = useState('');
   const [newDate, setNewDate] = useState(new Date());
-
-  const ratingOptions = [
-    { label: '⭑', value: 1 },
-    { label: '⭑⭑', value: 2 },
-    { label: '⭑⭑⭑', value: 3 },
-    { label: '⭑⭑⭑⭑', value: 4 },
-    { label: '⭑⭑⭑⭑⭑', value: 5 },
-  ];
 
   async function createNewReview() {
     try {
@@ -85,11 +79,9 @@ function CreateReviewForm() {
             onChange={event => setNewProduct(event.target.value)}
           >
             <option value="">- Select Product -</option>
-            <option value="maple">Maple CURIO</option>
-            <option value="maple-pattern">Maple + Pattern CURIO</option>
-            <option value="walnut">Walnut CURIO</option>
-            <option value="walnut-pattern">Walnut + Pattern CURIO</option>
-            <option value="litter-liner">Litter Liner</option>
+            {products.map(product => (
+              <option key={product.value} value={product.value}>{product.name}</option>
+            ))}
           </Select>
           <TextInput
             name="author"
