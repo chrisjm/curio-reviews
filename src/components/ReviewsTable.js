@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { API, graphqlOperation } from 'aws-amplify';
 import {
+  Icon,
   Pane,
   Table,
   TextInputField,
@@ -16,6 +17,7 @@ import {
 } from 'evergreen-ui';
 import DatePicker from 'react-date-picker';
 import moment from 'moment';
+import times from 'lodash/times';
 import { updateReview, deleteReview } from '../graphql/mutations';
 import { ratingOptions } from '../utils/ratings';
 import {
@@ -121,38 +123,36 @@ function ReviewsTable({ reviews }) {
   return (
     <Pane>
       <Pane marginTop={majorScale(2)} marginX={majorScale(1)}>
+
         <Table>
           <Table.Head>
             <Table.TextHeaderCell>Product</Table.TextHeaderCell>
             <Table.TextHeaderCell>Review</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Author</Table.TextHeaderCell>
-            <Table.TextHeaderCell flexBasis={100} flexShrink={0} flexGrow={0}>
-              Rating
-            </Table.TextHeaderCell>
-            <Table.TextHeaderCell flexBasis={100} flexShrink={0} flexGrow={0}>
-              Approved?
-            </Table.TextHeaderCell>
-            <Table.TextHeaderCell flexBasis={200} flexShrink={0} flexGrow={0}>
-              Actions
-            </Table.TextHeaderCell>
+            <Table.TextHeaderCell>Rating</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Approved?</Table.TextHeaderCell>
+            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
           </Table.Head>
           <Table.Body>
             {reviews.map(review => (
               <Table.Row key={review.id}>
                 <Table.TextCell>{productNameFromUrl(review.url)}</Table.TextCell>
                 <Table.TextCell>{review.description}</Table.TextCell>
-                <Table.TextCell>{review.author}</Table.TextCell>
-                <Table.TextCell flexBasis={100} flexShrink={0} flexGrow={0}>
-                  {'⭑'.repeat(review.rating)}
+                <Table.TextCell>
+                  {times(review.rating, () => (
+                    <Icon icon="star" color="warning" />
+                  ))}
+                  {times(5 - review.rating, () => (
+                    <Icon icon="star-empty" color="warning" />
+                  ))}
                 </Table.TextCell>
-                <Table.TextCell flexBasis={100} flexShrink={0} flexGrow={0}>
+                <Table.TextCell>
                   <Switch
                     height={24}
                     checked={review.isApproved}
                     onChange={event => handleUpdateApproved(review.id, event.target.checked)}
                   />
                 </Table.TextCell>
-                <Table.TextCell flexBasis={200} flexShrink={0} flexGrow={0}>
+                <Table.TextCell>
                   <Button
                     iconBefore="edit"
                     appearance="minimal"
@@ -184,13 +184,6 @@ function ReviewsTable({ reviews }) {
         confirmLabel="Update Review"
       >
         <Pane>
-          <TextInputField
-            label="Product URL"
-            placeholder="https://curiomodern.com/products/..."
-            width="100%"
-            value={updatedUrl}
-            onChange={event => setUpdatedUrl(event.target.value)}
-          />
           <SelectField
             label="Product"
             width="100%"
@@ -204,6 +197,13 @@ function ReviewsTable({ reviews }) {
               </option>
             ))}
           </SelectField>
+          <TextInputField
+            label="Product URL"
+            placeholder="https://curiomodern.com/products/..."
+            width="100%"
+            value={updatedUrl}
+            onChange={event => setUpdatedUrl(event.target.value)}
+          />
           <TextInputField
             label="Author"
             placeholder="Customer Name"

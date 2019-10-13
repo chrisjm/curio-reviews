@@ -6,9 +6,10 @@ import {
   Pane,
   Button,
   majorScale,
-  TextInput,
+  FormField,
+  TextInputField,
   Textarea,
-  Select,
+  SelectField,
   SegmentedControl,
   Dialog,
   toaster,
@@ -64,7 +65,6 @@ function CreateReviewForm() {
           Create Review
         </Button>
       </Pane>
-
       <Dialog
         isShown={isShown}
         title="Add a Review"
@@ -73,50 +73,51 @@ function CreateReviewForm() {
         confirmLabel="Add Review"
       >
         <Pane>
-          <Select
-            marginTop={majorScale(1)}
+          <SelectField
+            label="Product"
             value={newProduct}
+            width="100%"
             onChange={event => setNewProduct(event.target.value)}
           >
             <option value="">- Select Product -</option>
             {products.map(product => (
               <option key={product.value} value={product.value}>{product.name}</option>
             ))}
-          </Select>
-          <TextInput
-            name="author"
+          </SelectField>
+          <TextInputField
+            label="Author"
             placeholder="Customer Name"
             width="100%"
-            marginTop={majorScale(1)}
             value={newAuthor}
             onChange={event => setNewAuthor(event.target.value)}
           />
-          <Textarea
-            name="description"
-            placeholder="Review"
-            width="100%"
-            marginTop={majorScale(1)}
-            value={newReview}
-            onChange={event => setNewReview(event.target.value)}
-          />
-          <SegmentedControl
-            width="100%"
-            marginTop={majorScale(1)}
-            options={ratingOptions}
-            value={newRating}
-            onChange={value => setNewRating(value)}
-          />
-          <TextInput
-            name="source"
+          <FormField label="Review Description" marginBottom={majorScale(3)}>
+            <Textarea
+              name="description"
+              placeholder="Review"
+              width="100%"
+              value={newReview}
+              onChange={event => setNewReview(event.target.value)}
+            />
+          </FormField>
+          <FormField label="Rating" marginBottom={majorScale(3)}>
+            <SegmentedControl
+              width="100%"
+              options={ratingOptions}
+              value={newRating}
+              onChange={value => setNewRating(value)}
+            />
+          </FormField>
+          <TextInputField
+            label="Source"
             placeholder="Source (ex. Etsy, Wayfair, Website)"
             width="100%"
-            marginTop={majorScale(1)}
             value={newSource}
             onChange={event => setNewSource(event.target.value)}
           />
-          <Pane marginTop={majorScale(1)}>
+          <FormField label="Date" marginBottom={majorScale(3)}>
             <DatePicker format="y-MM-dd" onChange={date => setNewDate(date)} value={newDate} />
-          </Pane>
+          </FormField>
         </Pane>
       </Dialog>
     </Pane>

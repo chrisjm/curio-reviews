@@ -6,6 +6,7 @@
     "aws-amplify": "^1.1.40",
     "aws-amplify-react": "^2.5.0",
     "evergreen-ui": "^4.19.3",
+    "lodash": "^4.17.15",
     "moment": "^2.24.0",
     "react": "^16.10.2",
     "react-date-picker": "^7.8.2",
