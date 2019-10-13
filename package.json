@@ -1,5 +1,6 @@
 {
   "name": "curio-reviews",
+  "homepage": "https://github.com/chrisjm/curio-reviews",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
