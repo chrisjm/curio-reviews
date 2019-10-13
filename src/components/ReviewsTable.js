@@ -3,7 +3,9 @@ import { API, graphqlOperation } from 'aws-amplify';
 import {
   Icon,
   Pane,
+  Heading,
   Table,
+  Text,
   TextInputField,
   Dialog,
   FormField,
@@ -18,6 +20,7 @@ import {
 import DatePicker from 'react-date-picker';
 import moment from 'moment';
 import times from 'lodash/times';
+import { useMediaQuery } from 'react-responsive';
 import { updateReview, deleteReview } from '../graphql/mutations';
 import { ratingOptions } from '../utils/ratings';
 import {
@@ -26,6 +29,16 @@ import {
   productUrlFromValue,
   productNameFromUrl,
 } from '../utils/products';
+
+const Mobile = ({ children }) => {
+  const isMobile = useMediaQuery({ maxWidth: 976 });
+  return isMobile ? children : null;
+};
+
+const Desktop = ({ children }) => {
+  const isDesktop = useMediaQuery({ minWidth: 975 });
+  return isDesktop ? children : null;
+};
 
 function ReviewsTable({ reviews }) {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
@@ -123,39 +136,87 @@ function ReviewsTable({ reviews }) {
   return (
     <Pane>
       <Pane marginTop={majorScale(2)} marginX={majorScale(1)}>
-
-        <Table>
-          <Table.Head>
-            <Table.TextHeaderCell>Product</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Review</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Rating</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Approved?</Table.TextHeaderCell>
-            <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
-          </Table.Head>
-          <Table.Body>
-            {reviews.map(review => (
-              <Table.Row key={review.id}>
-                <Table.TextCell>{productNameFromUrl(review.url)}</Table.TextCell>
-                <Table.TextCell>{review.description}</Table.TextCell>
-                <Table.TextCell>
+        <Desktop>
+          <Table>
+            <Table.Head>
+              <Table.TextHeaderCell>Product</Table.TextHeaderCell>
+              <Table.TextHeaderCell>Review</Table.TextHeaderCell>
+              <Table.TextHeaderCell>Rating</Table.TextHeaderCell>
+              <Table.TextHeaderCell>Approved?</Table.TextHeaderCell>
+              <Table.TextHeaderCell>Actions</Table.TextHeaderCell>
+            </Table.Head>
+            <Table.Body>
+              {reviews.map(review => (
+                <Table.Row key={review.id}>
+                  <Table.TextCell>{productNameFromUrl(review.url)}</Table.TextCell>
+                  <Table.TextCell>{review.description}</Table.TextCell>
+                  <Table.TextCell>
+                    {times(review.rating, () => (
+                      <Icon icon="star" color="warning" />
+                    ))}
+                    {times(5 - review.rating, () => (
+                      <Icon icon="star-empty" color="warning" />
+                    ))}
+                  </Table.TextCell>
+                  <Table.TextCell>
+                    <Switch
+                      height={24}
+                      checked={review.isApproved}
+                      onChange={event => handleUpdateApproved(review.id, event.target.checked)}
+                    />
+                  </Table.TextCell>
+                  <Table.TextCell>
+                    <Button
+                      iconBefore="edit"
+                      appearance="minimal"
+                      intent="none"
+                      marginRight={majorScale(1)}
+                      onClick={() => showUpdateDialog(review)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      iconBefore="trash"
+                      appearance="minimal"
+                      intent="danger"
+                      onClick={() => showDeleteDialog(review)}
+                    >
+                      Delete
+                    </Button>
+                  </Table.TextCell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </Desktop>
+        <Mobile>
+          {reviews.map(review => (
+            <Pane
+              key={review.id}
+              border="default"
+              padding={majorScale(2)}
+              display="flex"
+              justifyContent="center"
+              flexDirection="column"
+              marginTop={majorScale(2)}
+            >
+              <Pane display="flex" justifyContent="space-between">
+                <Heading size={500}>{productNameFromUrl(review.url)}</Heading>
+                <Pane textAlign="right">
                   {times(review.rating, () => (
                     <Icon icon="star" color="warning" />
                   ))}
                   {times(5 - review.rating, () => (
                     <Icon icon="star-empty" color="warning" />
                   ))}
-                </Table.TextCell>
-                <Table.TextCell>
-                  <Switch
-                    height={24}
-                    checked={review.isApproved}
-                    onChange={event => handleUpdateApproved(review.id, event.target.checked)}
-                  />
-                </Table.TextCell>
-                <Table.TextCell>
+                </Pane>
+              </Pane>
+              <Text marginY={majorScale(2)}>{review.description}</Text>
+              <Pane display="flex" marginTop={majorScale(1)} justifyContent="space-between" alignItems="center">
+                <Pane>
                   <Button
                     iconBefore="edit"
-                    appearance="minimal"
+                    appearance="primary"
                     intent="none"
                     marginRight={majorScale(1)}
                     onClick={() => showUpdateDialog(review)}
@@ -164,17 +225,25 @@ function ReviewsTable({ reviews }) {
                   </Button>
                   <Button
                     iconBefore="trash"
-                    appearance="minimal"
+                    appearance="primary"
                     intent="danger"
                     onClick={() => showDeleteDialog(review)}
                   >
                     Delete
                   </Button>
-                </Table.TextCell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+                </Pane>
+                <Pane display="flex" flexDirection="column" justifyContent="center">
+                  <Heading size={200} marginBottom={majorScale(1)}>Approved?</Heading>
+                  <Switch
+                    height={24}
+                    checked={review.isApproved}
+                    onChange={event => handleUpdateApproved(review.id, event.target.checked)}
+                  />
+                </Pane>
+              </Pane>
+            </Pane>
+          ))}
+        </Mobile>
       </Pane>
       <Dialog
         isShown={isUpdateDialogOpen}
