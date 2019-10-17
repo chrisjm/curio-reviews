@@ -5,12 +5,12 @@ import { Connect, withAuthenticator } from 'aws-amplify-react';
 import { graphqlOperation } from 'aws-amplify';
 import * as queries from './graphql/queries';
 import * as subscriptions from './graphql/subscriptions';
-import awsconfig from './aws-exports';
+import config from './config';
 import ReviewsTable from './components/ReviewsTable';
 import CreateReview from './components/CreateReview';
 import Header from './components/Header';
 
-Amplify.configure(awsconfig);
+Amplify.configure(config.awsconfig);
 
 function App() {
   return (
