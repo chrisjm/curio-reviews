@@ -40,7 +40,7 @@ const Desktop = ({ children }) => {
   return isDesktop ? children : null;
 };
 
-function ReviewsTable({ reviews }) {
+function ReviewsAdminTable({ reviews }) {
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [selectedReview, setSelectedReview] = useState({});
@@ -332,4 +332,4 @@ function ReviewsTable({ reviews }) {
   );
 }
 
-export default ReviewsTable;
+export default ReviewsAdminTable;
